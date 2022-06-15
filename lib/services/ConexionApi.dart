@@ -9,7 +9,7 @@ class ConexionApi {
 
   Future<String> login(name, password) async {
     final url = Uri.parse(
-        "http://192.168.0.9:5000/login?name=$name&password=$password");
+        "http://192.168.0.44:5000/login?name=$name&password=$password");
     final response = await http.get(url);
     if (response.statusCode == 200) {
       final json_response = jsonDecode(response.body);
@@ -25,7 +25,7 @@ class ConexionApi {
 
   Future<List<Paciente>> busqueda(palabra) async {
     List<Paciente> pacienteList = [];
-    final url = Uri.parse("http://192.168.0.9:5000/busqueda");
+    final url = Uri.parse("http://192.168.0.44:5000/busqueda");
     final response =
         await http.post(url, body: jsonEncode({"palabra": palabra}));
 
@@ -59,7 +59,7 @@ class ConexionApi {
   }
 
   Future<String> crearCuenta(name, password) async {
-    final url = Uri.parse("http://192.168.0.9:5000/add-user");
+    final url = Uri.parse("http://192.168.0.44:5000/add-user");
     final response = await http.post(url,
         body: jsonEncode({"name": name, "password": password}));
 
@@ -78,7 +78,7 @@ class ConexionApi {
 
   Future<String> registrarPaciente(
       nV, nM, eM, pM, rM, sM, raM, esM, nD, nC, d) async {
-    final url = Uri.parse("http://192.168.0.9:5000/add-paciente");
+    final url = Uri.parse("http://192.168.0.44:5000/add-paciente");
     final response = await http.post(url,
         body: jsonEncode({
           "id": const Uuid().v4(),

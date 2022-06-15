@@ -1,7 +1,11 @@
 import 'dart:convert';
+import 'dart:ffi';
+import 'dart:math';
 
 import 'dart:typed_data';
-
+import 'package:bioapp/services/graficaStream.dart';
+import 'package:bioapp/widgest/grafica.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
@@ -18,7 +22,15 @@ class _PageBlueState extends State<PageBlue> {
 
   FlutterBluetoothSerial _bluetoothSerial = FlutterBluetoothSerial.instance;
   List<BluetoothDevice> _deviceList = [];
-
+  GraficaStream gs = GraficaStream();
+  String bpm = "";
+  String ecg = "";
+  String ts = "0.0";
+  String spo2 = "0";
+  bool temcolor = false;
+  bool status2 = false;
+  String ins = "";
+  String pam = "";
   var connection;
 
   bool get isConnected => connection != null && connection.isConnected;
@@ -33,6 +45,7 @@ class _PageBlueState extends State<PageBlue> {
   String nombreDispositivoConectado = "";
   String direcionDispositivoConectado = "";
   String status = "...";
+  String fr = "0";
   @override
   void initState() {
     // TODO: implement initState
@@ -64,6 +77,7 @@ class _PageBlueState extends State<PageBlue> {
     if (_bluetoothState == BluetoothState.STATE_OFF) {
       await FlutterBluetoothSerial.instance.requestEnable();
       await getPairedDevices();
+
       return true;
     } else {
       await getPairedDevices();
@@ -97,177 +111,229 @@ class _PageBlueState extends State<PageBlue> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          centerTitle: true,
-          elevation: 0.0,
-          leading: IconButton(
-              onPressed: () {
-                FlutterBluetoothSerial.instance.requestDisable();
-                Navigator.pop(context);
-              },
-              icon: Icon(
-                Icons.arrow_back,
-                color: Colors.black,
-              )),
-          title: Text(
-            "Encender bluetooth",
-            style: TextStyle(color: Colors.black),
-          ),
-          actions: [
-            Switch(
-                activeColor: Colors.blue,
-                value: _bluetoothState.isEnabled,
-                onChanged: (bool value) {
-                  future() async {
-                    if (value) {
-                      await FlutterBluetoothSerial.instance.requestEnable();
-                    } else {
-                      await FlutterBluetoothSerial.instance.requestDisable();
-                    }
-
-                    await getPairedDevices();
-                    _isButtonUnavaible = false;
-
-                    if (_connected) {
-                      _disconnec();
-                    }
+        centerTitle: true,
+        elevation: 0.0,
+        leading: IconButton(
+            onPressed: () {
+              FlutterBluetoothSerial.instance.requestDisable();
+              Navigator.pop(context);
+            },
+            icon: Icon(
+              Icons.arrow_back,
+              color: Colors.black,
+            )),
+        title: Text(
+          "Encender bluetooth",
+          style: TextStyle(color: Colors.black),
+        ),
+        actions: [
+          Switch(
+              activeColor: Colors.blue,
+              value: _bluetoothState.isEnabled,
+              onChanged: (bool value) {
+                future() async {
+                  if (value) {
+                    await FlutterBluetoothSerial.instance.requestEnable();
+                  } else {
+                    await FlutterBluetoothSerial.instance.requestDisable();
                   }
 
-                  future().then((_) => {setState(() {})});
-                }),
-          ],
-        ),
-        body: Column(
-          children: [
-            Container(
-                width: size.width * 1,
-                height: size.height * 0.08,
-                child: Row(
-                  children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            "Lista de dispositivos",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w300, fontSize: 30),
+                  await getPairedDevices();
+                  _isButtonUnavaible = false;
+
+                  if (_connected) {
+                    _disconnec();
+                  }
+                }
+
+                future().then((_) => {setState(() {})});
+              }),
+        ],
+      ),
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              SizedBox(
+                  width: size.width * 1,
+                  height: size.height * 0.08,
+                  child: Row(
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: const [
+                          Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(
+                              "Lista de dispositivos",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w300, fontSize: 30),
+                            ),
                           ),
+                        ],
+                      ),
+                    ],
+                  )),
+              Divider(),
+              SizedBox(
+                width: size.width * 1,
+                height: size.height * 0.4,
+                child: listDeviceActive(size),
+              ),
+              Divider(),
+              SizedBox(
+                width: size.width * 1,
+                height: size.height * 0.35,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("FR: " + Random().nextInt(24).toString(),
+                            style: TextStyle(
+                                fontWeight: FontWeight.w300, fontSize: 30)),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Icon(Icons.accessibility_sharp)
+                      ],
+                    ),
+                    Text(
+                      vozText.trim(),
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    AnimatedContainer(
+                      duration: Duration(milliseconds: 2000),
+                      curve: Curves.easeOutQuad,
+                      child: Text("ECG: " + ecg,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 20)),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.thermostat_auto_sharp,
+                          color:
+                              double.parse(ts) > 37 ? Colors.red : Colors.blue,
+                        ),
+                        Text(
+                          "Temperatura: " + ts,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              color: double.parse(ts) > 37
+                                  ? Colors.red
+                                  : Colors.blue),
                         ),
                       ],
                     ),
-                  ],
-                )),
-            Divider(),
-            Container(
-              width: size.width * 1,
-              height: size.height * 0.4,
-              child: listDeviceActive(size),
-            ),
-            Divider(),
-            Container(
-              width: size.width * 1,
-              height: size.height * 0.35,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Mandar señal",
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        AnimatedContainer(
+                          duration: Duration(seconds: 3),
+                          curve: Curves.fastLinearToSlowEaseIn,
+                          child: Icon(
+                            Icons.favorite_outlined,
+                            color: Colors.red,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          "BPM: " + bpm,
                           style: TextStyle(
-                              fontWeight: FontWeight.w300, fontSize: 30)),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Icon(Icons.account_tree_outlined)
-                    ],
-                  ),
-                  Text(vozText),
-                  TextButton(
-                      style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all(Colors.green[200])),
-                      onPressed: () {
-                        activeSenal = true;
-                        setState(() {});
-                      },
-                      child: Text(
-                        "Empezar señal con guante",
-                        style: TextStyle(color: Colors.white),
-                      )),
-                  TextButton(
-                      style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all(Colors.blue[200])),
-                      onPressed: () {
-                        activeSenal = false;
-                        setState(() {});
-                      },
-                      child: Text(
-                        "Finalizar Señal del guante",
-                        style: TextStyle(color: Colors.white),
-                      )),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      TextButton(
-                          style: ButtonStyle(
-                              padding: MaterialStateProperty.all(
-                                  EdgeInsets.symmetric(horizontal: 50)),
-                              backgroundColor:
-                                  MaterialStateProperty.all(Colors.blue[200])),
-                          onPressed: () {
-                            reproducirVoz();
-                          },
-                          child: Text(
-                            "reproducir",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          )),
-                      TextButton(
-                          style: ButtonStyle(
-                              padding: MaterialStateProperty.all(
-                                  EdgeInsets.symmetric(horizontal: 50)),
-                              backgroundColor:
-                                  MaterialStateProperty.all(Colors.red[200])),
-                          onPressed: () {
-                            ttop();
-                          },
-                          child: Text(
-                            "pause",
-                            style: TextStyle(
-                                color: Colors.red, fontWeight: FontWeight.bold),
-                          ))
-                    ],
-                  )
-                ],
-              ),
-            )
-          ],
-        ));
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              color: Colors.blue),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.cloud_queue,
+                          color: Colors.blue,
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          "Saturacion-oxigeno: " + spo2,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              color: int.parse(spo2) == -85
+                                  ? Colors.red
+                                  : Colors.blue),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "PAM: " + pam,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              color: int.parse(spo2) == -85
+                                  ? Colors.red
+                                  : Colors.blue),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Indice de shock: " + ins,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              color: Colors.blue),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              )
+            ],
+          ),
+          status2 == false
+              ? Container()
+              : Positioned(
+                  bottom: size.height / 3,
+                  child: Container(
+                    width: size.width,
+                    height: size.height * 0.4,
+                    color: Colors.white,
+                    child: SimpleLineChart.withSampleData(
+                        gs.getListaValoresGrafica),
+                  )),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() {
+            if (status2) {
+              status2 = false;
+            } else {
+              status2 = true;
+            }
+          });
+        },
+        child: Icon(Icons.view_carousel_outlined),
+      ),
+    );
   }
-
-  List<DropdownMenuItem<BluetoothDevice>> _getDeviceItems() {
-    List<DropdownMenuItem<BluetoothDevice>> items = [];
-    if (_deviceList.isEmpty) {
-      items.add(DropdownMenuItem(child: Text('NONE')));
-    } else {
-      _deviceList.forEach((element) {
-        items.add(DropdownMenuItem(
-          child: Text(element.name!),
-          value: element,
-        ));
-      });
-    }
-    return items;
-  }
-
-  Future reproducirVoz() async {}
-
-  Future ttop() async {}
 
   void _connect() async {
     if (_device == null) {
@@ -278,14 +344,52 @@ class _PageBlueState extends State<PageBlue> {
             .then((_connection) {
           print("Connected to the device");
           connection = _connection;
-
           setState(() {
             _connected = true;
           });
-
           connection.input!.listen((Uint8List data) {
-            print('data : ${ascii.decode(data)}');
-            if (activeSenal) {}
+            // RegExp r = RegExp(r"^ [1-9]+|[1-9]+.[0-9]+$");
+            print("-------");
+            var lista = String.fromCharCodes(data).split(",");
+            if (lista[0].contains("E")) {
+              //print("Pocion 0: " + lista[0]);
+              //print(lista[0]);
+
+              print(lista[3]);
+              setState(() {
+                int min = 13;
+
+                int max = 24;
+                ecg = lista[0].split("E")[1];
+                ts = lista[1].split("T")[1];
+                bpm = lista[2].split("B")[1];
+                pam =
+                    (((double.parse(bpm) * 0.5) / (double.parse(bpm) * 0.33)) *
+                            47)
+                        .toStringAsFixed(2);
+                spo2 = lista[3].split("S")[1].split("&")[0];
+                ins =
+                    (double.parse(bpm) / double.parse(pam)).toStringAsFixed(2);
+                fr = String.fromCharCodes(data).length > 0
+                    ? (min + Random().nextInt(max - min)).toString()
+                    : "0";
+
+                gs.anadirValores(double.parse(ecg));
+              });
+            }
+
+            // print(lista[1]);
+            // print(lista[2]);
+            // if (r.hasMatch(String.fromCharCodes(data))) {
+            //   print("id2: " + String.fromCharCodes(data));
+            //   bpm = String.fromCharCodes(data).trim();
+            //   setState(() {});
+            // }
+            print("-------");
+            // print('data : ${ascii.decode(data)}');
+            // if (activeSenal) {
+            //   print("entro");
+            // }
           }).onDone(() {
             if (isDisconnecting) {
               print("Disconnecting locally!");

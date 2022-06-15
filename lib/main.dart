@@ -1,4 +1,5 @@
 import 'package:bioapp/pages/Buscar.dart';
+import 'package:bioapp/pages/Monitor.dart';
 import 'package:bioapp/pages/SignIn.dart';
 import 'package:bioapp/pages/SignOut.dart';
 import 'package:bioapp/pages/SplashScreen.dart';
@@ -22,7 +23,8 @@ class MyApp extends StatelessWidget {
         "Menu": (_) => Menu(),
         "AgregarPaciente": (_) => RegistrarPaciente(),
         "Buscar": (_) => SearchPaciente(),
-        "Bluetooth": (_) => PageBlue()
+        "Bluetooth": (_) => PageBlue(),
+        "Monitor": (_) => Monitor()
       },
     );
   }

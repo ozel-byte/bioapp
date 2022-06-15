@@ -58,11 +58,31 @@ class _SearchPacienteState extends State<SearchPaciente> {
                                   itemCount: snapshot.data!.length,
                                   itemBuilder: (context, index) {
                                     return ListTile(
+                                      selectedColor: Colors.amber[200],
+                                      leading: Icon(Icons.person),
                                       title: Text(
                                           snapshot.data![index].nombreMascota),
-                                      subtitle: Text("Edad: " +
-                                          snapshot.data![index].edad +
-                                          " - "),
+                                      subtitle: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text("Peso: " +
+                                              snapshot.data![index].peso),
+                                          Text("Edad Mascota: " +
+                                              snapshot.data![index].edad),
+                                          Text("Estado: " +
+                                              snapshot.data![index].estado),
+                                          Text("Razon: " +
+                                              snapshot.data![index].razon),
+                                          Text("Sexo: " +
+                                              snapshot.data![index].sexo),
+                                          Text("Nombre del dueño: " +
+                                              snapshot
+                                                  .data![index].nombreDueno),
+                                          Text("Direcion: " +
+                                              snapshot.data![index].direccion),
+                                        ],
+                                      ),
                                     );
                                   },
                                 );
@@ -77,10 +97,6 @@ class _SearchPacienteState extends State<SearchPaciente> {
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: Icon(Icons.search),
       ),
     );
   }
