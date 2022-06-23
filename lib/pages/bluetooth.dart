@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:math';
@@ -31,6 +32,7 @@ class _PageBlueState extends State<PageBlue> {
   bool status2 = false;
   String ins = "";
   String pam = "";
+  bool st = false;
   var connection;
 
   bool get isConnected => connection != null && connection.isConnected;
@@ -49,6 +51,7 @@ class _PageBlueState extends State<PageBlue> {
   @override
   void initState() {
     // TODO: implement initState
+
     super.initState();
     FlutterBluetoothSerial.instance.state.then((state) {
       setState(() {
@@ -82,6 +85,7 @@ class _PageBlueState extends State<PageBlue> {
     } else {
       await getPairedDevices();
     }
+
     return false;
   }
 
@@ -193,7 +197,7 @@ class _PageBlueState extends State<PageBlue> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("FR: " + Random().nextInt(24).toString(),
+                        Text("FR: $fr",
                             style: TextStyle(
                                 fontWeight: FontWeight.w300, fontSize: 30)),
                         SizedBox(
@@ -201,10 +205,6 @@ class _PageBlueState extends State<PageBlue> {
                         ),
                         Icon(Icons.accessibility_sharp)
                       ],
-                    ),
-                    Text(
-                      vozText.trim(),
-                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     AnimatedContainer(
                       duration: Duration(milliseconds: 2000),
@@ -310,7 +310,7 @@ class _PageBlueState extends State<PageBlue> {
           status2 == false
               ? Container()
               : Positioned(
-                  bottom: size.height / 3,
+                  bottom: size.height / 2.5,
                   child: Container(
                     width: size.width,
                     height: size.height * 0.4,
@@ -322,6 +322,10 @@ class _PageBlueState extends State<PageBlue> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          st = true;
+          if (st) {
+            Timer.periodic(Duration(seconds: 30), ((timer) => {calcularbpm()}));
+          }
           setState(() {
             if (status2) {
               status2 = false;
@@ -342,20 +346,18 @@ class _PageBlueState extends State<PageBlue> {
       if (!isConnected) {
         await BluetoothConnection.toAddress(_device.address)
             .then((_connection) {
-          print("Connected to the device");
           connection = _connection;
           setState(() {
             _connected = true;
           });
           connection.input!.listen((Uint8List data) {
             // RegExp r = RegExp(r"^ [1-9]+|[1-9]+.[0-9]+$");
-            print("-------");
+
             var lista = String.fromCharCodes(data).split(",");
             if (lista[0].contains("E")) {
               //print("Pocion 0: " + lista[0]);
               //print(lista[0]);
 
-              print(lista[3]);
               setState(() {
                 int min = 13;
 
@@ -370,10 +372,6 @@ class _PageBlueState extends State<PageBlue> {
                 spo2 = lista[3].split("S")[1].split("&")[0];
                 ins =
                     (double.parse(bpm) / double.parse(pam)).toStringAsFixed(2);
-                fr = String.fromCharCodes(data).length > 0
-                    ? (min + Random().nextInt(max - min)).toString()
-                    : "0";
-
                 gs.anadirValores(double.parse(ecg));
               });
             }
@@ -385,7 +383,7 @@ class _PageBlueState extends State<PageBlue> {
             //   bpm = String.fromCharCodes(data).trim();
             //   setState(() {});
             // }
-            print("-------");
+
             // print('data : ${ascii.decode(data)}');
             // if (activeSenal) {
             //   print("entro");
@@ -404,6 +402,14 @@ class _PageBlueState extends State<PageBlue> {
         });
       }
     }
+  }
+
+  void calcularbpm() {
+    int min = 13;
+    int max = 24;
+    setState(() {
+      fr = (min + Random().nextInt(max - min)).toString();
+    });
   }
 
   Widget listDeviceActive(Size size) {

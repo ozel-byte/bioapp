@@ -13,7 +13,7 @@ class GraficaStream {
 
   void anadirValores(double num) {
     listaGrafica.add(LinearSales(num, listaGrafica.length * 1.0));
-    if (listaGrafica.length == 1000) {
+    if (listaGrafica.length == 180.0) {
       listaGrafica.clear();
     }
     _streamController.sink.add(listaGrafica);

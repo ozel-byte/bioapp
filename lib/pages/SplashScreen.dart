@@ -20,6 +20,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blue[100],
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -27,8 +28,11 @@ class _SplashScreenState extends State<SplashScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: const [
               Text(
-                "BioCam",
-                style: TextStyle(fontSize: 30),
+                "BioCan",
+                style: TextStyle(
+                    fontSize: 30,
+                    color: Colors.blue,
+                    fontWeight: FontWeight.bold),
               ),
               SizedBox(
                 height: 10,
