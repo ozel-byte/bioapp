@@ -13,6 +13,7 @@ class _SignInState extends State<SignIn> {
   String msjError = "";
   final TextEditingController _controllerName = TextEditingController();
   final TextEditingController _controllerPassword = TextEditingController();
+  bool status = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,7 +31,20 @@ class _SignInState extends State<SignIn> {
             padding: EdgeInsets.symmetric(horizontal: 60),
             child: TextField(
               controller: _controllerName,
-              decoration: InputDecoration(hintText: "Correo"),
+              onChanged: (v) {
+                final _name = RegExp(r"[0-9]+");
+                if (_name.hasMatch(v)) {
+                  status = true;
+                } else {
+                  status = false;
+                }
+                setState(() {});
+              },
+              decoration: InputDecoration(
+                  hintText: "Nombre",
+                  counterText: "No puede contener sigos o numeros",
+                  counterStyle:
+                      TextStyle(color: !status ? Colors.grey : Colors.red)),
             ),
           ),
           const SizedBox(
@@ -40,7 +54,8 @@ class _SignInState extends State<SignIn> {
             padding: EdgeInsets.symmetric(horizontal: 60),
             child: TextField(
               controller: _controllerPassword,
-              decoration: InputDecoration(hintText: "Contraseña"),
+              decoration: InputDecoration(
+                  hintText: "Contraseña", counterText: "Minimo 5 caracteres"),
             ),
           ),
           const SizedBox(
@@ -53,19 +68,11 @@ class _SignInState extends State<SignIn> {
           ),
           TextButton(
               style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Colors.blue)),
-              onPressed: () async {
-                final response = await capi.login(
-                    _controllerName.text, _controllerPassword.text);
-
-                if (response == "true") {
-                  Navigator.pushNamed(context, "Menu");
-                } else {
-                  setState(() {
-                    msjError = "Error de name o password";
-                  });
-                }
-              },
+                  backgroundColor: MaterialStateProperty.all(
+                      status ? Colors.grey : Colors.blue)),
+              onPressed: !status || _controllerName.text.length > 0
+                  ? null
+                  : iniciarSesion,
               child: const Text(
                 "Login",
                 style: TextStyle(color: Colors.white),
@@ -83,5 +90,20 @@ class _SignInState extends State<SignIn> {
         ],
       ),
     );
+  }
+
+  iniciarSesion() async {
+    if (_controllerName.text.isNotEmpty &&
+        _controllerPassword.text.isNotEmpty) {
+      final response =
+          await capi.login(_controllerName.text, _controllerPassword.text);
+      if (response == "true") {
+        Navigator.pushNamed(context, "Menu");
+      } else {
+        setState(() {
+          msjError = "Error de name o password";
+        });
+      }
+    }
   }
 }
