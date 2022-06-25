@@ -28,7 +28,7 @@ class _SignInState extends State<SignIn> {
             height: 20,
           ),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 60),
+            padding: const EdgeInsets.symmetric(horizontal: 60),
             child: TextField(
               controller: _controllerName,
               onChanged: (v) {
@@ -42,7 +42,7 @@ class _SignInState extends State<SignIn> {
               },
               decoration: InputDecoration(
                   hintText: "Nombre",
-                  counterText: "No puede contener sigos o numeros",
+                  counterText: "No puede contener signos o números",
                   counterStyle:
                       TextStyle(color: !status ? Colors.grey : Colors.red)),
             ),
@@ -51,11 +51,11 @@ class _SignInState extends State<SignIn> {
             height: 20,
           ),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 60),
+            padding: const EdgeInsets.symmetric(horizontal: 60),
             child: TextField(
               controller: _controllerPassword,
-              decoration: InputDecoration(
-                  hintText: "Contraseña", counterText: "Minimo 5 caracteres"),
+              decoration: const InputDecoration(
+                  hintText: "Contraseña", counterText: "Mínimo 5 caracteres"),
             ),
           ),
           const SizedBox(
@@ -63,14 +63,14 @@ class _SignInState extends State<SignIn> {
           ),
           Text(
             msjError,
-            style: TextStyle(
+            style: const TextStyle(
                 color: Colors.red, fontSize: 18, fontWeight: FontWeight.bold),
           ),
           TextButton(
               style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all(
                       status ? Colors.grey : Colors.blue)),
-              onPressed: !status || _controllerName.text.length > 0
+              onPressed: !status || _controllerName.text.isNotEmpty
                   ? null
                   : iniciarSesion,
               child: const Text(
