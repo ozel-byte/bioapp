@@ -105,4 +105,22 @@ class ConexionApi {
       return "error";
     }
   }
+
+  Future<String> AgregarDatosMedicosPaciente() async {
+    final url = Uri.parse("http://192.168.0.44:5000/add-datos-paciente");
+    final response = await http.post(url,
+        body: jsonEncode({
+          "id": const Uuid().v4(),
+        }));
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+      if (jsonResponse["status"] == "true") {
+        return jsonResponse["status"].toString();
+      } else {
+        return jsonResponse["status"].toString();
+      }
+    } else {
+      return "error";
+    }
+  }
 }
