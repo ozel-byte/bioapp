@@ -1,14 +1,18 @@
-import 'package:bioapp/pages/Buscar.dart';
-import 'package:bioapp/pages/Monitor.dart';
-import 'package:bioapp/pages/SignIn.dart';
-import 'package:bioapp/pages/SignOut.dart';
-import 'package:bioapp/pages/SplashScreen.dart';
-import 'package:bioapp/pages/bluetooth.dart';
-import 'package:bioapp/pages/menu.dart';
-import 'package:bioapp/pages/registrarPaciente.dart';
-import 'package:flutter/material.dart';
+import 'package:bioapp/src/pages/Buscar.dart';
+import 'package:bioapp/src/pages/Monitor.dart';
+import 'package:bioapp/src/pages/SignIn.dart';
+import 'package:bioapp/src/pages/SignOut.dart';
+import 'package:bioapp/src/pages/SplashScreen.dart';
+import 'package:bioapp/src/pages/bluetooth.dart';
+import 'package:bioapp/src/pages/menu.dart';
+import 'package:bioapp/src/pages/registrarPaciente.dart';
 
-void main() => runApp(MyApp());
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override

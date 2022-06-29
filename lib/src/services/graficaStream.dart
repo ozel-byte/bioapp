@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:bioapp/widgest/grafica.dart';
+import 'package:bioapp/src/widgest/grafica.dart';
 
 class GraficaStream {
   List<LinearSales> listaGrafica = [];

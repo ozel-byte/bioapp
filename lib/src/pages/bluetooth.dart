@@ -4,8 +4,10 @@ import 'dart:ffi';
 import 'dart:math';
 
 import 'dart:typed_data';
-import 'package:bioapp/services/graficaStream.dart';
-import 'package:bioapp/widgest/grafica.dart';
+
+import 'package:bioapp/src/services/graficaStream.dart';
+import 'package:bioapp/src/widgest/grafica.dart';
+
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
