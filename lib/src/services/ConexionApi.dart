@@ -106,11 +106,18 @@ class ConexionApi {
     }
   }
 
-  Future<String> AgregarDatosMedicosPaciente() async {
+  Future<String> AgregarDatosMedicosPaciente(
+      ecg, temperatura, bpm, so, pam, ish) async {
     final url = Uri.parse("http://192.168.0.44:5000/add-datos-paciente");
     final response = await http.post(url,
         body: jsonEncode({
           "id": const Uuid().v4(),
+          "ecg": ecg,
+          "temperatura": temperatura,
+          "bpm": bpm,
+          "so": so,
+          "pam": pam,
+          "ish": ish
         }));
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
