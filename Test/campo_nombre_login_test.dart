@@ -7,4 +7,8 @@ void main() {
     ValidForm vf = ValidForm();
     expect(vf.validNombre("123"), false);
   });
+  test("Validar campo contraseña", () {
+    ValidForm vf = ValidForm();
+    expect(vf.validContrasena("ozeluii"), true);
+  });
 }

@@ -11,4 +11,11 @@ class ValidForm {
       return false;
     }
   }
+
+  bool validContrasena(String v) {
+    if (v.length >= 5) {
+      return true;
+    }
+    return false;
+  }
 }
