@@ -52,6 +52,7 @@ class _SignInState extends State<SignIn> {
             padding: const EdgeInsets.symmetric(horizontal: 60),
             child: TextField(
               controller: _controllerPassword,
+              maxLines: 5,
               decoration: const InputDecoration(
                   hintText: "Contraseña", counterText: "Mínimo 5 caracteres"),
             ),
