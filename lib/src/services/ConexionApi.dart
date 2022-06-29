@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:bioapp/model/Paciente.dart';
+import 'package:bioapp/src/model/Paciente.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;

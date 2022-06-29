@@ -1,4 +1,6 @@
-import 'package:bioapp/services/ConexionApi.dart';
+import 'package:bioapp/src/services/ConexionApi.dart';
+import 'package:bioapp/src/state/validForm.dart';
+
 import 'package:flutter/material.dart';
 
 class SignIn extends StatefulWidget {
@@ -31,13 +33,9 @@ class _SignInState extends State<SignIn> {
             padding: const EdgeInsets.symmetric(horizontal: 60),
             child: TextField(
               controller: _controllerName,
+              key: Key("nombre"),
               onChanged: (v) {
-                final _name = RegExp(r"[0-9]+");
-                if (_name.hasMatch(v)) {
-                  status = true;
-                } else {
-                  status = false;
-                }
+                status = ValidForm().validNombre(v);
                 setState(() {});
               },
               decoration: InputDecoration(

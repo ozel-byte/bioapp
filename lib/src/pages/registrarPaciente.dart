@@ -1,4 +1,4 @@
-import 'package:bioapp/services/ConexionApi.dart';
+import 'package:bioapp/src/services/ConexionApi.dart';
 import 'package:flutter/material.dart';
 
 class RegistrarPaciente extends StatefulWidget {

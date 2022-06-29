@@ -1,5 +1,5 @@
-import 'package:bioapp/model/Paciente.dart';
-import 'package:bioapp/services/ConexionApi.dart';
+import 'package:bioapp/src/model/Paciente.dart';
+import 'package:bioapp/src/services/ConexionApi.dart';
 import 'package:flutter/material.dart';
 
 class SearchPaciente extends StatefulWidget {
